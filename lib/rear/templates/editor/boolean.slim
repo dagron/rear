@@ -1,0 +1,5 @@
+- COLUMNS__BOOLEAN_MAP.each_pair do |k,v|
+  - a = value == k ? {checked: true} : {}
+  label.radio.inline
+    input name=column.name? type="radio" value=k.inspect *a *attrs(column, :editor) = v
+  | &nbsp;

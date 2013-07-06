@@ -1,0 +1,3 @@
+select.selectable name=column.name? *attrs(column, :editor)
+  - options.each_pair do |k,v|
+    option value=k selected=active_options.include?(k) = v

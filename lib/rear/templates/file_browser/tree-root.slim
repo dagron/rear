@@ -1,0 +1,11 @@
+== css_tag href: route(:assets, 'css-treeview/styles'), suffix: ASSETS__SUFFIX
+- onclick = "$.get('%s', function(r){ $('#files').html(r) });"
+.css-treeview
+  ul
+    li
+      input#branch-root type="checkbox" checked=true
+      label for="branch-root"
+        a href="#" onclick=(onclick % route(:file_browser__files, params.merge(path: '')))
+          = File.basename(@__rear__file_browser_root)
+          
+      == file_browser__tree @__rear__file_browser_root

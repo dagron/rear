@@ -1,0 +1,10 @@
+- attrs[:class] ||= 'input-small search-query'
+- attrs[:placeholder] ||= (setup[:label] unless value)
+- id = 'filters-%s-%s' % [name.hash, self.__id__]
+.input-append.date id=id
+  input name=name value=value type="text" data-format="yyyy-MM-dd" *attrs
+  span.add-on
+    i data-time-icon="icon-time" data-date-icon="icon-calendar"
+
+javascript:
+  $(function() {$('##{id}').datetimepicker({pickTime: false})});

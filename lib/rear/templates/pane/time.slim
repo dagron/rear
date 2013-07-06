@@ -1,0 +1,2 @@
+div *attrs(column, :pane)
+  = value.kind_of?(Time) ? value.strftime('%H:%M:%S') : value

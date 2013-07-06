@@ -1,0 +1,36 @@
+.alert.alert-error
+  h4 Something went wrong...
+  .text-info
+    | Please consider to report this at &nbsp;
+    a href="https://github.com/espresso/rear/issues" github.com/espresso/rear
+  h5 = error.first
+
+h4.text-info Backtrace:
+- error.each do |l|
+  div = l
+
+h4.text-info Path:
+= rq.path
+
+h4.text-info Request Method:
+= rq.request_method
+
+h4.text-info Params:
+table
+  - params.each_pair do |key,val|
+    tr
+      td
+        .pull-right.text-info
+          = '%s: ' % key
+      td
+        = val.is_a?(String) ? val : val.inspect
+
+h4.text-info Env:
+table
+  - env.each_pair do |key,val|
+    tr
+      td
+        .pull-right.text-info
+          = '%s: ' % key
+      td
+        = val.is_a?(String) ? val : val.inspect

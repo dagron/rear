@@ -1,0 +1,15 @@
+- assocs(assoc_type).each_pair do |assoc_name, assoc|
+  - remote_ctrl = associated_model_controller(assoc[:remote_model])
+  - remote_url  = remote_ctrl.route(:reverse_assoc, self.class, assoc_type, assoc_name, item_id)
+  - label = RearInflector.humanize(assoc_name)
+  .tab-pane id="editor-tabs-#{assoc_name}"
+    javascript:
+      $(function(){
+        new Rear.Assoc('#{remote_url}', '##{assoc[:dom_id]}').load();}
+      );
+    .editor-column_container title=('Attached ' << label)
+      div id=(assoc[:dom_id])
+    br
+
+    .editor-column_container title=RearInflector.pluralize(label)
+      div id=(assoc[:dom_id] + '_detached')

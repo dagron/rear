@@ -1,0 +1,21 @@
+- selected = params[:selected].to_i
+
+div id=dom_id
+  == @pager
+
+  table.table
+    thead
+      - pane_columns.each do |column|
+        th = column.label
+
+    - items.each do |item|
+      - self.item, self.item_id = item, item[pkey]
+      tr.pane-item.hoverable class=(:info if selected == item_id)
+        - pane_columns.each do |column|
+          - self.column = column
+          td
+            a.pane-column_value href=route(:edit, item_id, pager_params)
+              == render_pane_column column
+  - if @pager_context[:total_items] > __rear__.ipp
+    .text-center
+      b = '%s - %s of %s' % @pager_context[:counter]

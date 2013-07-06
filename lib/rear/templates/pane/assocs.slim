@@ -1,0 +1,67 @@
+- jsvar = dom_id + '_assoc_instance'
+javascript:
+  var #{jsvar} = new Rear.Assoc('#{@reverse_assoc.route}', '##{dom_id}', #{@reverse_assoc.readonly});
+
+== html_filters if @pager_context[:total_pages] > 2 || opted_filters.any?
+
+- if items.size > 0
+  == @pager
+
+  table.table
+    thead
+      th
+      - pane_columns.each do |column|
+        th class=('hoverable-active' if order_params[column.string_name])
+          - if vector = sortable_column?(column)
+            - params  = pager_params(0).merge(order: {column.string_name => vector.first})
+            - url     = route(action, *action_params__array, params)
+            - onclick = "Rear.switch_page('#%s', '%s');" % [dom_id, url]
+            a href='javascript:void(null);' onclick=onclick
+              i class=('icon-chevron-%s' % vector.last)
+              | &nbsp;
+              = column.label
+          - else
+            a href='javascript:void(null);' = column.label
+    
+    - items.each do |item|
+      - self.item, self.item_id = item, item[pkey]
+      tr.pane-item.hoverable
+        td
+          label.checkbox
+            - action = @reverse_assoc.attached ? :delete : :create
+            - if @reverse_assoc.source_item
+              - type = :checkbox
+              - onclick = '%s.%s(%s);' % [jsvar, action, item_id]
+              - if @reverse_assoc.readonly
+                - onclick << 'return false;'
+              - else
+                - onclick << '%s.load_attached(this);' % jsvar
+            - else
+              - type, onclick = :radio, ''
+            - attrs = { \
+                 type: type, \
+                 name: @reverse_assoc.source_key, \
+                value: item[@reverse_assoc.target_key || pkey], \
+                class: [ @reverse_assoc.dom_id + '-assoc_toggler' ], \
+              onclick: onclick, \
+              checked: @reverse_assoc.attached }
+            - attrs[:class] << 'pane-assoc-attacher' unless @reverse_assoc.attached
+            input *attrs
+
+        - pane_columns.each do |column|
+          - self.column = column
+          td class=('hoverable-active' if order_params[column.string_name])
+            a.pane-column_value href=route(:edit, item_id, pager_params) target="_blank"
+              == render_pane_column column
+              
+  - if @pager_context[:total_items] > __rear__.ipp
+    .text-center
+      b = ('%s - %s of %s' % @pager_context[:counter])
+
+- else
+  - if @reverse_assoc.attached
+    h4 No attached #{@reverse_assoc.name} detected
+  - else
+    b
+      | No #{RearInflector.pluralize(@reverse_assoc.name)} detected. &nbsp;
+      a href=route(:edit, '0') target="_blank" Please consider to add some.

@@ -1,0 +1,9 @@
+- value = value.strftime('%Y-%m-%d %H:%M:%S') if value.kind_of?(DateTime)
+- a = {name: column.name?, type: "text", value: value, "data-format" => "yyyy-MM-dd hh:mm:ss"}
+.input-append.date id=column.name?
+  input.input-medium  *a *attrs(column, :editor)
+  span.add-on
+    i data-time-icon="icon-time" data-date-icon="icon-calendar" class=column.css_class
+- if column.name?
+  javascript:
+    $(function() {$('##{column.name}').datetimepicker()});

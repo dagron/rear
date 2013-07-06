@@ -1,0 +1,125 @@
+javascript:
+  var crudifier = new Rear.CRUD(#{item_id}, '#{self[:crud]}', '#{self[:edit]}', #{readonly? ? true : false});
+
+- if readonly?
+  javascript:
+    Rear.sticky_warn('ReadOnly Mode! Any updates will be discarded!');
+
+.row-fluid
+  .span3
+    .nav-collapse.collapse
+      #minipane.thumbnail
+      javascript:
+        $.get(
+          '#{{route :minipane, pager_params.merge(selected: item_id.to_s)}}',
+          function(response){ $('#minipane').html(response) }
+        );
+
+  .span9
+    form.form-horizontal#editor-main_form
+      ul.nav.nav-tabs
+        li.active
+          a href="#editor-tabs-generic" data-toggle="tab"
+            i.icon-edit
+            | &nbsp;
+            = __rear__.label || __rear__.default_label
+        
+        - assocs(:belongs_to).each_key do |a|
+          li
+            a href="#editor-tabs-#{a}" data-toggle="tab"
+              i.icon-tags
+              | &nbsp;
+              = a
+      
+        - if item_id > 0
+          - assocs(:has_one, :has_many).each_key do |a|
+            li
+              a href="#editor-tabs-#{a}" data-toggle="tab"
+                i.icon-tags
+                | &nbsp;
+                = a
+        li
+          a href=route(:edit, 0)
+            span.badge.badge-warning
+              i.icon-plus
+              | &nbsp;New
+
+        - if item_id > 0
+          li
+            a onclick="if(confirm('This action can not be undone! Continue?')) { crudifier.delete('#{{route(pager_params)}}') } else { return false }" href="#"
+              span.badge.badge-important
+                i.icon-remove
+                | &nbsp;Delete
+
+        li
+          a.saveButton onclick="crudifier.save();" href="javascript:void(null);"
+            span.badge.badge-success#editor-save_badge
+              i.icon-check
+              | &nbsp;Save
+      
+      .tab-content style="min-height: 50em;"
+        .tab-pane.active#editor-tabs-generic
+
+          - tabs = editor_columns.inject({}) do |map,column|
+            - column.tab? && (map[column.tab] ||= []).push(column)
+            - map
+
+          - content_for :columns do |columns|
+            - rowed_columns = {}
+            - columns.each do |column|
+              - next if rowed_columns[column.__id__]
+              - if column.row?
+                - if column.row.is_a?(String)
+                  .row-fluid
+                    .span style="text-align: center;"
+                      h4.muted
+                        = column.row
+                    
+                .row-fluid
+                  - columns = editor_columns.select {|c| c.row == column.row}
+                  - columns.each do |rc|
+                    - self.column = rc
+                    - rowed_columns[rc.__id__] = true
+                    div class=('span%s' % (12 / columns.size).ceil)
+                      .editor-column_container title=rc.label
+                        .editor-column_value
+                          == render_editor_column rc
+
+              - else
+                - self.column = column
+                .editor-column_container title=column.label
+                  .editor-column_value
+                    == render_editor_column column
+          
+          - if tabs.any?
+            .tabbable.tabs-left
+              ul.nav.nav-tabs
+                li.active
+                  a href="#editorTabsLeftGeneric" data-toggle="tab" Generic
+                - tabs.each_key do |tab|
+                  li
+                    a href=("#editorTabsLeft" << tab) data-toggle="tab" = tab
+                      
+              .tab-content
+                .tab-pane.active#editorTabsLeftGeneric
+                  - yield_content :columns, editor_columns.select {|c| !c.tab?}
+
+                - tabs.each_pair do |tab,columns|
+                  .tab-pane id=('editorTabsLeft' << tab)
+                    - yield_content :columns, columns
+
+          - else
+            - yield_content :columns, editor_columns
+
+        == reander_p 'editor/assocs', assoc_type: :belongs_to
+        - if item_id > 0
+          - [:has_one, :has_many].each do |type|
+            == reander_p 'editor/assocs', assoc_type: type
+        
+    hr
+    .row-fluid
+      .pull-right
+        a.btn.saveButton onclick="crudifier.save();" style="width: 10em;"
+          i.icon-check
+          | &nbsp;Save
+  

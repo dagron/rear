@@ -1,0 +1,26 @@
+- dom_id_format = 'pane-filters-%s-' + dom_id
+
+form.form-search.form-inline.pane-filters-form id=(dom_id_format % :form)
+  div id=(dom_id_format % :input) style="display: inline-block;"
+    == render_filters
+
+  - if @reverse_assoc
+    - jsvar = @reverse_assoc.dom_id + '__filters_instance'
+    - route = '%s/%s' % [@reverse_assoc.route, @reverse_assoc.attached]
+    javascript:
+      var #{jsvar} = new Rear.Filters('#{dom_id}', '#{route}');
+    .btn-group
+      button.btn.btn-small type="button" onclick="#{jsvar}.apply();"
+        i.icon-search
+        | Search
+      button.btn.btn-small type="button" onclick="#{jsvar}.reset();"
+        i.icon-remove
+        | Reset
+  - else
+    .btn-group
+      button.btn.btn-small type="submit" value="Search"
+        i.icon-search
+        | Search
+      a.btn.btn-small href=base_url
+        i.icon-remove
+        | Reset

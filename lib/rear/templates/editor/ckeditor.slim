@@ -1,0 +1,7 @@
+- editor_id = "EditorFor" + column.string_name.capitalize
+- a = {id: editor_id, name: column.name?}
+textarea.input-block-level.text_editor *a *attrs(column, :editor) = value
+
+- if defined?(EL::CKE)
+  - o = {readonly: column.readonly? || readonly?, snippets: column.snippets}
+  == ckeditor editor_id, o.merge(column.ckeditor_opts)

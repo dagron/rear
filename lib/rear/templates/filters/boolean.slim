@@ -1,0 +1,10 @@
+.input-prepend.input-append
+  span.add-on
+    = setup[:label]
+
+  span.add-on
+    - COLUMNS__BOOLEAN_MAP.each_pair do |k,v|
+      - attrs = value == k.inspect ? {checked: true} : {}
+      label.radio
+        input name=name type="radio" value=k.inspect *attrs = v
+        | &nbsp;

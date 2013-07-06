@@ -1,0 +1,5 @@
+div *attrs(column, :pane)
+  - options.each_pair do |k,v|
+    - if active_options.include?(k)
+      = v
+      br

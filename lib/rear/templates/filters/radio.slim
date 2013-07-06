@@ -1,0 +1,14 @@
+- if setup[:decorative?]
+  - attrs[:onclick] = "new Rear.Filters('%s', '%s').update();" % \
+    [dom_id, route(:html_filters, true, dom_id: dom_id)]
+
+.input-prepend.input-append
+  span.add-on
+    = setup[:label]
+
+  span.add-on
+    - filter_setup_to_options(setup).each_pair do |v,l|
+      - attrs[:checked] = value == v.to_s
+      label.radio
+        input name=name type="radio" value=v *attrs = l
+      | &nbsp;

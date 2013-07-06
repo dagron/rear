@@ -1,0 +1,108 @@
+== js_tag(src: route(:assets, 'fileupload'), suffix: ASSETS__SUFFIX)
+
+- http_path = EUtils.normalize_path(params[:path].to_s)
+- real_path = File.join(@__rear__file_browser_root, http_path)
+
+javascript:
+  $(function(){
+    $('.slider').colorbox({rel: 'slider', width: '80%', height: '80%'});
+    $('.slider-modal').colorbox({rel: 'slider-modal', width: '80%', height: '80%'});
+    $('.fileName').keypress(function (e) {
+      if (e.which == 13) {
+        var file = $(this).attr( "data-file" ),
+            name = $(this).val();
+        $.ajax({
+          type: 'PUT',
+          url:  '#{ route(:file_browser, params) }',
+          data: {file: file, name: name},
+          complete: function(xhr, txtResponse) {
+            if(txtResponse == 'success')
+              reload_files();
+            else
+              Rear.error(xhr.responseText);
+          }
+        });
+        e.preventDefault();
+      }
+    });
+
+  });
+  function reload_tree() {
+    $.get(
+      '#{route(:file_browser__tree, params)}',
+      function(r) { $('#tree').html(r) }
+    );
+  }
+  function reload_files() {
+    $.get(
+      '#{route(:file_browser__files, params.merge(path: http_path))}',
+      function(r) { $('#files').html(r) }
+    );
+  }
+  function delete_file(file) {
+    if(!confirm('This action can not be undone! Continue?'))
+      return false;
+    $.ajax({
+      type: 'DELETE',
+      url:  '#{ route(:file_browser, params) }',
+      data: {file: file},
+      complete: function(xhr, txtResponse) {
+        if(txtResponse == 'success')
+          reload_files();
+        else
+          Rear.error(xhr.responseText);
+      }
+    });
+  }
+  function fileupload_callback() { reload_files(); }
+
+.well.well-small
+  span.btn.fileinput-button style="margin-top: -5px;"
+    - url = route(:file_browser, params.merge(path: http_path))
+    input#fileupload type="file" name="files[]" multiple=true data-url=url
+      i.icon-upload
+      | &nbsp;upload
+
+  a = File.basename(@__rear__file_browser_root)
+  - http_path.split(/\/+/).each do |d|
+    a = d
+    span.separator
+      | &nbsp;/&nbsp;
+
+ul.thumbnails
+  - files = Pathname.new(real_path).children.select {|e| e.file? && browseable?(e)}
+  - files.each do |file|
+    - name = File.basename(file)
+    - path = file.sub(@__rear__file_browser_root_regexp, '').to_s
+    - src  = route(:file_browser__image, params.merge(image: path))
+    - value  = (p = __rear__.file_browser[:proc]) ? p.call(path) : path
+    - select = "window.opener.Rear.updateImageColumn('%s', '%s'); window.close();" % [params[:column_id], value]
+
+    li.span2
+      .thumbnail.context_menu data-toggle="context" data-target=('#context_menu-%s' % path.__id__)
+        div
+          input.input-block-level.fileName type="text" value=name data-file=path
+        - if image?(file)
+          - href = src
+          a.slider href="#" onclick=select
+            img src=src
+        - else
+          - href = '#'
+          img src=route(:assets, 'icons/Oxygen/video.png%s' % ASSETS__SUFFIX)
+
+      div id=('context_menu-%s' % path.__id__)
+        ul.dropdown-menu
+          li
+            a href='#' onclick=select
+              i.icon-ok
+              | &nbsp;Select
+          li.divider
+          li
+            a.slider-modal href=src title=name
+              i.icon-zoom-in
+              | &nbsp;Preview
+          li.divider
+          li
+            a href="#" onclick="delete_file('#{path}');"
+              i.icon-trash
+              | &nbsp;Delete

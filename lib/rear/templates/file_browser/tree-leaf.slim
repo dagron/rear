@@ -1,0 +1,14 @@
+- if File.directory?(path)
+  ul
+    - Pathname.new(path).children.select {|e| e.directory?}.each do |e|
+      - qsp = params.merge(path: e.sub(@__rear__file_browser_root_regexp, '').to_s)
+      - url = route(:file_browser__files, qsp)
+      - onclick = "$.get('%s', function(r){ $('#files').html(r) });" % url
+      - dom_id  = 'branch-%s' % e.__id__
+      li.active
+        input  id=dom_id type="checkbox" checked=true
+        label for=dom_id
+          a href="#" onclick=onclick
+            = File.basename(e)
+            
+        == file_browser__tree e

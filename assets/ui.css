@@ -1,0 +1,69 @@
+
+.content {
+  margin-top: 5em;
+  margin-bottom: 5em;
+}
+
+/* navbar - display dropdown menus on hover */
+ul.nav li.dropdown:hover ul.dropdown-menu{
+  display: block;    
+}
+a.menu:after, .dropdown-toggle:after {
+  content: none;
+}
+.navbar .dropdown-menu {
+  margin-top: 0px;
+}
+/* /navbar */
+
+.pane-filters-form {
+  text-align: center;
+}
+
+.hoverable-hover {
+  background-color: #f9f9f9;
+}
+
+.hoverable-active {
+  background-color: #f9f9f9;
+}
+
+.text_editor {
+  height: 25em;
+}
+
+#editor-save_badge {
+  padding: 0.2em 2em 0.2em 2em;
+}
+
+#bulk_editor-modal .modal-body {
+  max-height: 600px;
+}
+
+.editor-column_container {
+  position: relative;
+  margin: 0 0 1.5em 0;
+  padding: 2.5em 0 0 1em;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-bottom: 0;
+  border-right: 0;
+  -webkit-border-radius: 4px 0 0 0;
+     -moz-border-radius: 4px 0 0 0 ;
+          border-radius: 4px 0 0 0;
+}
+
+.editor-column_container:after {
+  content: attr(title);
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  padding: 3px 7px;
+  font-weight: bold;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  color: #9da0a4;
+  -webkit-border-radius: 4px 0 4px 0;
+     -moz-border-radius: 4px 0 4px 0;
+          border-radius: 4px 0 4px 0;
+}

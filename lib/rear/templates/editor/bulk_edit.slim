@@ -1,0 +1,75 @@
+
+- crudifier_toggler = lambda do |column, dom_id, opts={}|
+  label.checkbox.inline class=('pull-right' unless opts[:left])
+    - name = 'rear-bulk_editor-crudifier_toggler[]'
+    input name=name type="checkbox" id=(dom_id + '-update_me') value=column
+    = 'Update %s' % (opts[:label] || column)
+
+form.form-horizontal#bulk_editor-main_form
+  input.hidden type="hidden" name="rear-bulk_editor-items" value=@items
+  ul.nav.nav-tabs
+    li.active
+      a href="#editor-tabs-generic" data-toggle="tab"
+        i.icon-edit
+        | &nbsp;
+        = __rear__.label || __rear__.default_label
+    
+    - assocs(:belongs_to).each_key do |a|
+      li
+        a href="#editor-tabs-#{a}" data-toggle="tab"
+          i.icon-tags
+          | &nbsp;
+          = a
+  
+  .tab-content
+    .tab-pane.active#editor-tabs-generic
+
+      - rowed_columns = {}
+      - editor_columns.each do |column|
+        javascript:
+          $('.#{column.css_class}').change(function(){
+            $('##{column.dom_id}-update_me').prop('checked', true);
+          });
+        - next if rowed_columns[column.__id__]
+        - if column.row?
+          - if column.row.is_a?(String)
+            .row-fluid
+              .span style="text-align: center;"
+                h4.muted
+                  = column.row
+              
+          .row-fluid
+            - row_columns = editor_columns.select {|c| c.row == column.row}
+            - row_columns.each do |rc|
+              - self.column = rc
+              - rowed_columns[rc.__id__] = true
+              div class=('span%s' % (12 / row_columns.size).ceil)
+                .editor-column_container title=rc.label
+                  .editor-column_value
+                    == render_editor_column rc
+                  - crudifier_toggler.call rc.name, rc.dom_id
+
+        - else
+          - self.column = column
+          .editor-column_container title=column.label
+            .editor-column_value
+              == render_editor_column column
+            - crudifier_toggler.call column.name, column.dom_id
+
+    - assocs(:belongs_to).each_pair do |assoc_name, assoc|
+      - remote_ctrl = associated_model_controller(assoc[:remote_model])
+      - remote_url  = remote_ctrl.route(:reverse_assoc, self.class, :belongs_to, assoc_name, item_id)
+      .tab-pane id="editor-tabs-#{assoc_name}"
+        javascript:
+          $(function(){
+            new Rear.Assoc('#{remote_url}', '##{assoc[:dom_id]}').load_detached(function() {
+              $('.#{assoc[:dom_id]}_detached-assoc_toggler').change(function() {
+                $('##{assoc[:dom_id]}-update_me').prop('checked', true);
+              });
+            });
+          });
+
+        - column = assoc[:belongs_to_keys][:source]
+        - crudifier_toggler.call column, assoc[:dom_id], left: true, label: assoc[:name]
+        
+        div id=(assoc[:dom_id] + '_detached')

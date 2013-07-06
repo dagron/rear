@@ -1,0 +1,111 @@
+== html_filters
+== @pager
+- quick_filters.each_pair do |column,filters|
+  .btn-group
+    - filters.each_key do |label|
+      - active = quick_filter?(column) == label
+      - if active
+        - params = Hash[opted_quick_filters.reject {|c,f| c == column}]
+      - else
+        - params = opted_quick_filters.merge(column => label)
+      a.btn.btn-small href=route(quick_filters: params) class=('active' if active)
+        = label
+      
+table.table
+  thead
+    th
+      input type="checkbox" onclick="Rear.check_multiple('.pane-selected_item', this, true);"
+      
+    - pane_columns.each do |column|
+      th class=('hoverable-active' if order_params[column.string_name])
+        - if vector = sortable_column?(column)
+          - url = route(pager_params(0).merge(order: {column.string_name => vector.first}))
+          a href=url
+            i class=('icon-chevron-%s' % vector.last)
+            | &nbsp;
+            = column.label
+        - else
+          a href='javascript:void(null);' = column.label
+
+    th
+      .pull-right
+        a href=route(:edit, 0)
+          .label.label-warning
+            i.icon-plus
+  
+  - items.each do |item|
+    
+    - self.item, self.item_id = item, item[pkey]
+    tr.pane-item.hoverable
+      td
+        label.checkbox
+          input.pane-selected_item type='checkbox' value=item_id onclick="Rear.check_multiple('.pane-selected_item', this);"
+
+      - pane_columns.each do |column|
+        - self.column = column
+        - classes = []
+        - classes << 'hoverable-active' if order_params[column.string_name]
+        - classes << 'pane-pkey'        if column.name == pkey
+        td class=classes
+          a.pane-column_value href=route(:edit, item_id, pager_params)
+            == render_pane_column column
+          
+      td
+        .pull-right
+          a.label.label-info href=route(:edit, item_id.to_s, pager_params)
+            i.icon-edit.icon-white
+
+- if items.any?
+  - unless readonly?
+    javascript:
+      var crudifier;
+      function launch_bulk_editor() {
+        var selected = [];
+        $('.pane-selected_item:checked').each(function(i,e) {
+          selected.push($(e).val());
+        });
+        if(selected.length == 0) {
+          Rear.warn('Please select at least one item');
+          return false;
+        }
+        $.get(
+          '#{route(:bulk_edit)}',
+          {items: selected.join(" ")},
+          function(response){
+            crudifier = new Rear.BulkCRUD('#{self[:bulk_edit]}');
+            
+            $('#bulk_editor-modal_body').html(response);
+            $('#bulk_editor-modal').modal().css({
+              'margin-top': -80,
+              'margin-left': function() {
+                return -($(this).width() / 2);
+              }
+            });
+          }
+        );
+      }
+
+    #bulk_editor-modal.modal.hide.fade.container
+      .modal-header
+        .btn-group
+          button.btn data-dismiss="modal" Cancel
+          button.btn.btn-success.input-medium.saveButton onclick="crudifier.invoke();" Save
+          button.btn.input-medium onclick="location.reload();" Done
+      .modal-body#bulk_editor-modal_body
+
+    a href="javascript:void(null);" onclick="launch_bulk_editor();"
+      span.badge.badge-warning
+        i.icon-edit
+        | &nbsp;Edit Selected
+    | &nbsp;&nbsp;
+
+    a onclick="if(confirm('This action can not be undone! Continue?')) { new Rear.CRUD().delete_selected('#{self[:delete_selected]}', '#{{route(pager_params)}}', #{readonly? ? true : false}) } else { return false }" href="javascript:void(null);"
+      span.badge.badge-important
+        i.icon-remove
+        | &nbsp;Delete Selected
+
+  - if @pager_context[:total_items] > __rear__.ipp
+    b.pull-right
+      = '%s - %s of %s' % @pager_context[:counter]
+
+== @pager

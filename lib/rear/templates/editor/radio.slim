@@ -1,0 +1,5 @@
+- options.each_pair do |k,v|
+  - a = active_options.include?(k) ? {checked: true} : {}
+  label.radio.inline.editor-radio_container
+    input name=column.name? type="radio" value=k *a *attrs(column, :editor) = v
+  | &nbsp;

@@ -1,0 +1,65 @@
+#!/usr/bin/env ruby
+require 'fileutils'
+
+$:.unshift File.expand_path('../../lib', __FILE__)
+require 'rear'
+
+usage = <<USAGE
+
+rear usage:
+
+  rear i[nstall]:t[emplates] [path]
+    install templates at path, if path omitted, files will be installed in current folder
+
+  rear i[nstall]:a[ssets] [path]
+    install assets at path. if path omitted, files will be installed in current folder
+
+USAGE
+
+if $*.empty?
+  puts usage
+  exit 0
+end
+
+error = nil
+action, unit = $*[0].scan(/(\w+)\:(\w+)/).flatten
+%w[i install].include?(action) || error = 'Unrecognized action %s' % action.inspect
+%w[t templates a assets].include?(unit) || error = 'Unrecognized unit %s' % unit.inspect
+
+if error
+  puts "\n  ERROR: %s" % error
+  puts usage
+  exit 1
+end
+
+case
+when action =~ /\Ai/
+  path = $*[1] || './'
+  unless File.directory?(path)
+    puts "\n  ERROR: %s should be a directory, exiting\n\n" % path.inspect
+    exit 1
+  end
+
+  case
+  when unit =~ /\At/
+    path = File.join(path, 'rear/shared-templates/')
+    if File.exists?(path)
+      puts "\n  ERROR: %s already exists, exiting\n\n" % path
+      exit 1
+    end
+    FileUtils.mkdir_p File.dirname(path)
+    FileUtils.cp_r(RearConstants::PATH__TEMPLATES, path)
+    puts "\n  templates successfully installed into %s\n\n" % path
+  
+  when unit =~ /\Aa/
+    path = File.join(path, 'rear-assets/')
+    if File.exists?(path)
+      puts "\n  ERROR: %s already exists, exiting\n\n" % path
+      exit 1
+    end
+    FileUtils.mkdir_p File.dirname(path)
+    FileUtils.cp_r(RearConstants::ASSETS__PATH, path)
+    puts "\n  assets successfully installed into %s\n\n" % path
+  end
+
+end

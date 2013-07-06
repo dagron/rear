@@ -1,0 +1,15 @@
+- values = value.is_a?(Array) ? value : []
+- if setup[:decorative?]
+  - attrs[:onclick] = "new Rear.Filters('%s', '%s').update();" % \
+    [dom_id, route(:html_filters, true, dom_id: dom_id)]
+
+.input-prepend.input-append
+  span.add-on
+    = setup[:label]
+
+  span.add-on
+    - filter_setup_to_options(setup).each_pair do |v,l|
+      - attrs[:checked] = values.include?(v.to_s)
+      label.checkbox
+        input name=('%s[]' % name) type="checkbox" value=v *attrs = l
+      | &nbsp;

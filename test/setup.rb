@@ -1,0 +1,11 @@
+require 'fileutils'
+$:.unshift File.expand_path('../../lib', __FILE__)
+require 'rear'
+require 'specular'
+require 'sonar'
+require 'nokogiri'
+require 'active_record'
+require 'sqlite3'
+require 'data_mapper'
+require 'dm-sqlite-adapter'
+require 'sequel'

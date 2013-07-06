@@ -1,0 +1,37 @@
+- assets_mapper route(:assets), suffix: ASSETS__SUFFIX do
+  == js_tag  'jquery'
+  == js_tag  'api'
+
+  - cd 'bootstrap'
+  == js_tag  'js/bootstrap.min'
+  == css_tag 'css/bootstrap.min'
+  
+  == js_tag  '../bootstrap-contextmenu'
+
+  - cd '../colorbox'
+  == js_tag  'jquery.colorbox-min'
+  == css_tag 'colorbox'
+
+  - cd '../jQuery-File-Upload'
+  == js_tag  'js/vendor/jquery.ui.widget'
+  == js_tag  'js/jquery.fileupload'
+  == css_tag 'css/jquery.fileupload-ui'
+
+  - cd '../noty'
+  == js_tag 'jquery.noty'
+  == js_tag 'layouts/top'
+  == js_tag 'layouts/topRight'
+  == js_tag 'themes/default'
+
+table.table
+  tr
+    td#tree style="white-space: nowrap; width: 20%;"
+      == file_browser__tree
+    td#files
+      == file_browser__files
+
+#progress_modal.modal.hide
+  .modal-header Uploading file(s), please wait ...
+  .modal-body
+    #progress_bar.progress.progress-striped.active
+      .bar style="width: 0%;"

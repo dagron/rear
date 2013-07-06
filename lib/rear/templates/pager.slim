@@ -1,0 +1,39 @@
+- if xhr?
+  .text-center
+    == pager_linker(page_prev, class: 'btn btn-small', label: i_tag(class: 'icon-chevron-left'))
+    | &nbsp;
+    .btn-group
+      a.btn.dropdown-toggle data-toggle="dropdown" href="#"
+        = current_page
+        | &nbsp;
+        b.caret
+      ul.dropdown-menu
+        li
+          a href=route(pager_params)
+            i.icon-list
+            |  Pane
+        li.divider
+        - page_min.upto(page_max) do |p|
+          li class=('active' if p == current_page)
+            == pager_linker(p)
+    | &nbsp;
+    == pager_linker(page_next, class: 'btn btn-small', label: i_tag(class: 'icon-chevron-right'))
+
+- else
+  .pagination.pagination-centered
+    ul
+      - if page_min > 1
+        li
+          == pager_linker(1)
+        li.disabled
+          a ...
+
+      - page_min.upto(page_max) do |p|
+        li class=('active' if p == current_page)
+          == pager_linker(p)
+
+      - if page_max < total_pages
+        li.disabled
+          a ...
+        li
+          == pager_linker(total_pages)

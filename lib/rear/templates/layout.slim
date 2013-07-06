@@ -1,0 +1,78 @@
+doctype html
+html
+  head
+    title = 'Rear / %s' % (__rear__.label || __rear__.default_label)
+    meta http-equiv="Content-Type" content="text/html; charset=UTF-8"
+    meta name="viewport" content="width=device-width, initial-scale=1.0"
+    - assets_mapper route(:assets), suffix: ASSETS__SUFFIX do
+      == js_tag  'jquery'
+
+      - cd 'bootstrap'
+      == js_tag  'js/bootstrap.min'
+      == css_tag 'css/bootstrap.min'
+      == css_tag 'css/bootstrap-responsive.min'
+      
+      - cd '../select2'
+      == js_tag  'select2.min'
+      == css_tag 'select2'
+
+      - cd '../noty'
+      == js_tag 'jquery.noty'
+      == js_tag 'layouts/top'
+      == js_tag 'layouts/topRight'
+      == js_tag 'themes/default'
+
+      - cd '../bootstrap-datetimepicker'
+      == js_tag  'js/bootstrap-datetimepicker.min'
+      == css_tag 'css/bootstrap-datetimepicker.min'
+
+      - cd '/'
+      == css_tag 'select2-bootstrap'
+      == js_tag  'api'
+      == js_tag  'xhr'
+      == css_tag 'ui'
+
+  body
+    .container-fluid
+      .row-fluid
+        .span
+          .navbar.navbar-fixed-top
+            .navbar-inner
+              .container
+                
+                a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse"
+                  span.icon-bar
+                  span.icon-bar
+                  span.icon-bar
+
+                .nav-collapse.collapse
+                  ul.nav
+                    li.divider-vertical
+                    li
+                      a href=RearHomeController.base_url
+                        i.icon-home
+                        | &nbsp;Home
+
+                    li.divider-vertical
+                    - Rear.menu.each do |(c,children)|
+                      - if c.is_a?(String) && children.any?
+                        - active_children = children.find {|ch| rq.script_name =~ /\A#{ch.base_url}\//}
+                        li.dropdown class=('active' if active_children)
+                          a.dropdown-toggle href="#" data-toggle="dropdown"
+                            = c
+                            | &nbsp;
+                            b.caret
+                          ul.dropdown-menu
+                            - children.each do |ch|
+                              li class=('active' if active_children == ch)
+                                a href=ch.base_url = ch.label
+                              - unless ch == children.last
+                                li.divider
+                      - else
+                        li class=('active' if rq.script_name =~ /\A#{c.base_url}/)
+                          a href=c.base_url = c.label
+
+                      li.divider-vertical 
+
+          .content
+            == yield

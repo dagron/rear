@@ -1,0 +1,9 @@
+- attrs[:class] ||= 'selectable'
+- if setup[:decorative?]
+  - attrs[:onchange] = "new Rear.Filters('%s', '%s').update();" % \
+    [dom_id, route(:html_filters, true, dom_id: dom_id)]
+
+select name=name data-placeholder=setup[:label] *attrs
+  option value=""
+  - filter_setup_to_options(setup).each_pair do |v,l|
+    option value=v selected=(value == v.to_s) = l

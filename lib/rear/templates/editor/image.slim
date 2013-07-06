@@ -1,0 +1,21 @@
+- path = (v = value.to_s.strip).size > 0 ? v : nil
+- id = 'resetButtonFor' << column.dom_id
+- onclick = "Rear.resetImageColumn('%s');" % column.dom_id
+a.pull-right href="#" id=id onclick=onclick class=('hide' unless path)
+  i.icon-trash
+
+- onclick = "Rear.openFileBrowser('%s');" % route(:file_browser, column_id: column.dom_id)
+- args = {id: ('inputFor' << column.dom_id), name: column.name?, value: value}
+- if item?
+  - args['data-url'] = route(:crud)
+  - args['data-id']  = item_id
+.input-append
+  input type="text" *args
+  a.btn onclick=onclick
+    i.icon-screenshot
+    |  browse
+
+p
+  .thumbnail id=('containerFor' << column.dom_id) class=('hide' unless path)
+    img id=('imageFor' << column.dom_id) src=value
+
