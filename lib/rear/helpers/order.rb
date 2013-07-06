@@ -43,6 +43,12 @@ module RearHelpers
         when :ar
           columns = column.order_by.map {|c| '%s %s' % [RearUtils.quote_ar_column(model, c), vector]}
           order  << columns.join(', ')
+        when :sq
+          column.order_by.each do |c| 
+            # use Sequel::SQL::OrderedExpression
+            sort_item = vector=='desc' ? Sequel.desc(c.to_sym) : Sequel.asc(c.to_sym)
+            order << sort_item
+          end
         end
       end
       order.any? ? order : nil

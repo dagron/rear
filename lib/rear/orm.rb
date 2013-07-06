@@ -70,6 +70,17 @@ class RearORM
     filters, limit, offset, order =
       conditions.values_at(:conditions, :limit, :offset, :order)
     ds = limit ? dataset.limit(*[limit, offset].compact) : dataset
-    ds.filter(filters || {}).order(*[order].compact)
+    dsf = ds.filter(filters || {})
+    if order
+      if order.size > 1
+        dso = dsf.order(*[order].compact)
+      else
+        # avoid parenthesis around ( ORDERED BY 'something' DESC )
+        dso = dsf.order(order[0])
+      end
+    else
+      dso = dsf
+    end
+    dso
   end
 end
